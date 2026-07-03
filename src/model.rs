@@ -61,6 +61,8 @@ impl MajsoulLevel {
     }
 
     pub fn icon_url(&self, base: &str, players: u32) -> String {
-        format!("{}/{}_{}.png", base, players, self.major)
+        // URL-encode the base path (contains Japanese chars like 基本情報)
+        let encoded = urlencoding::encode(base).replace("%2F", "/");
+        format!("{}/{}_{}.png", encoded, players, self.major)
     }
 }
