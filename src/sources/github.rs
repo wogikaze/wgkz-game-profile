@@ -1,6 +1,6 @@
 use crate::config::Config;
 use anyhow::{anyhow, Result};
-use chrono::Datelike;
+use chrono::{Datelike, TimeZone, Utc};
 use serde::Deserialize;
 use serde_json::json;
 
@@ -26,19 +26,27 @@ struct Coll {
 }
 
 pub async fn fetch_commits(cfg: &Config) -> Result<(i64, i64)> {
-    let now = chrono::Utc::now();
-    let yesterday_start = (now - chrono::Duration::days(1))
-        .date_naive()
-        .and_hms_opt(0, 0, 0)
+    let now = Utc::now();
+    let yesterday = now - chrono::Duration::days(1);
+    let yesterday_start = Utc
+        .from_local_datetime(&yesterday.date_naive().and_hms_opt(0, 0, 0).unwrap())
         .unwrap();
     let yesterday_end = yesterday_start + chrono::Duration::days(1);
-    let year_start = chrono::NaiveDate::from_ymd_opt(now.year(), 1, 1)
-        .unwrap()
-        .and_hms_opt(0, 0, 0)
+    let year_start = Utc
+        .from_local_datetime(
+            &chrono::NaiveDate::from_ymd_opt(now.year(), 1, 1)
+                .unwrap()
+                .and_hms_opt(0, 0, 0)
+                .unwrap(),
+        )
         .unwrap();
-    let year_end = chrono::NaiveDate::from_ymd_opt(now.year(), 12, 31)
-        .unwrap()
-        .and_hms_opt(23, 59, 59)
+    let year_end = Utc
+        .from_local_datetime(
+            &chrono::NaiveDate::from_ymd_opt(now.year(), 12, 31)
+                .unwrap()
+                .and_hms_opt(23, 59, 59)
+                .unwrap(),
+        )
         .unwrap();
 
     let q = "query($login:String!,$ys:DateTime!,$ye:DateTime!,$yrs:DateTime!,$yre:DateTime!){\
@@ -52,10 +60,10 @@ pub async fn fetch_commits(cfg: &Config) -> Result<(i64, i64)> {
         "query": q,
         "variables": {
             "login": cfg.github_user,
-            "ys": yesterday_start.format("%+").to_string(),
-            "ye": yesterday_end.format("%+").to_string(),
-            "yrs": year_start.format("%+").to_string(),
-            "yre": year_end.format("%+").to_string(),
+            "ys": yesterday_start.to_rfc3339(),
+            "ye": yesterday_end.to_rfc3339(),
+            "yrs": year_start.to_rfc3339(),
+            "yre": year_end.to_rfc3339(),
         }
     });
 
