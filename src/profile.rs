@@ -8,6 +8,9 @@ pub fn build_payload(cfg: &Config, stats: &Stats) -> Value {
     let m3 = &stats.majsoul_3ma;
     let icon4 = m4.icon_url(&cfg.widget_icon_base, 4);
     let icon3 = m3.icon_url(&cfg.widget_icon_base, 3);
+    tracing::info!("icon4 url: {icon4}");
+    tracing::info!("icon3 url: {icon3}");
+    tracing::info!("stat_icon url: {}", cfg.widget_stat_icon);
 
     json!({
         "data": {
