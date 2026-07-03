@@ -71,8 +71,11 @@ pub async fn fetch(cfg: &Config, players: u32) -> Result<MajsoulLevel> {
             });
         }
     };
-    let major = raw.id / 100;
-    let minor = raw.id % 100;
+    // level.id is 5 digits: {numPlayerId}{major*100+minor}
+    // e.g. 10301 -> numPlayerId=1, major=3 (雀傑), minor=1 (★1)
+    let real_id = raw.id % 10000;
+    let major = real_id / 100;
+    let minor = real_id % 100;
     Ok(MajsoulLevel {
         major,
         minor,
