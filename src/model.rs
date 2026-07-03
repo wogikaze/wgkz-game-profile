@@ -45,7 +45,7 @@ impl MajsoulLevel {
     }
 
     pub fn stars(&self) -> String {
-        if self.is_soul {
+        if self.is_soul || self.minor == 0 {
             String::new()
         } else {
             "★".repeat(self.minor.clamp(1, 3) as usize)

@@ -1,6 +1,6 @@
 use crate::config::Config;
 use crate::model::MajsoulLevel;
-use anyhow::{anyhow, Result};
+use anyhow::Result;
 use serde::Deserialize;
 
 #[derive(Deserialize)]
@@ -13,6 +13,12 @@ struct PlayerStats {
 struct LevelRaw {
     id: u32,
     score: i64,
+}
+
+#[derive(Deserialize)]
+struct ApiError {
+    #[serde(default)]
+    error: Option<String>,
 }
 
 pub async fn fetch(cfg: &Config, players: u32) -> Result<MajsoulLevel> {
@@ -32,15 +38,39 @@ pub async fn fetch(cfg: &Config, players: u32) -> Result<MajsoulLevel> {
     let client = reqwest::Client::builder()
         .user_agent("wgkz-game-profile")
         .build()?;
-    let stats: PlayerStats = client
-        .get(&url)
-        .send()
-        .await?
-        .error_for_status()?
-        .json()
-        .await?;
+    let resp = client.get(&url).send().await?;
+    let status = resp.status();
+    let text = resp.text().await?;
 
-    let raw = stats.level.ok_or_else(|| anyhow!("no level in stats"))?;
+    // 404 with {"error":"id_not_found"} means no ranked games played yet.
+    if !status.is_success() {
+        if let Ok(err) = serde_json::from_str::<ApiError>(&text) {
+            if err.error.as_deref() == Some("id_not_found") {
+                tracing::warn!("majsoul {} player_stats: no data (not played yet)", pl);
+                return Ok(MajsoulLevel {
+                    major: 1,
+                    minor: 0,
+                    score: 0,
+                    is_soul: false,
+                });
+            }
+        }
+        anyhow::bail!("majsoul {} api {}: {}", pl, status, text);
+    }
+
+    let stats: PlayerStats = serde_json::from_str(&text)?;
+    let raw = match stats.level {
+        Some(l) => l,
+        None => {
+            tracing::warn!("majsoul {} stats: no level field", pl);
+            return Ok(MajsoulLevel {
+                major: 1,
+                minor: 0,
+                score: 0,
+                is_soul: false,
+            });
+        }
+    };
     let major = raw.id / 100;
     let minor = raw.id % 100;
     Ok(MajsoulLevel {
