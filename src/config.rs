@@ -54,7 +54,7 @@ impl Config {
                 "https://i.gyazo.com/7fe75df2979682c5d38cdbe17a737817.png".into()
             }),
             widget_icon_base: env::var("WIDGET_ICON_BASE").unwrap_or_else(|_| {
-                "https://cdn.wikiwiki.jp/to/w/nya/基本情報/::attach".into()
+                "https://raw.githubusercontent.com/wogikaze/wgkz-game-profile/main/public/icons".into()
             }),
             widget_aa: env::var("WIDGET_AA")
                 .ok()

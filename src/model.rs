@@ -61,21 +61,6 @@ impl MajsoulLevel {
     }
 
     pub fn icon_url(&self, base: &str, players: u32) -> String {
-        // URL-encode only the path segment (contains Japanese chars like 基本情報).
-        // Preserve : and / which are valid in URL paths.
-        if let Some(idx) = base.find("://") {
-            let (scheme_host, path) = base.split_at(idx + 3);
-            let host_end = path.find('/').unwrap_or(path.len());
-            let (host, rest) = path.split_at(host_end);
-            let encoded_rest = urlencoding::encode(rest)
-                .replace("%2F", "/")
-                .replace("%3A", ":");
-            format!("{}{}{}/{}_{}.png", scheme_host, host, encoded_rest, players, self.major)
-        } else {
-            let encoded = urlencoding::encode(base)
-                .replace("%2F", "/")
-                .replace("%3A", ":");
-            format!("{}/{}_{}.png", encoded, players, self.major)
-        }
+        format!("{}/{}_{}.png", base, players, self.major)
     }
 }
