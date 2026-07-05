@@ -21,6 +21,24 @@ pub struct MajsoulLevel {
 }
 
 impl MajsoulLevel {
+    pub fn from_raw(major: u32, minor: u32, score: i64) -> Self {
+        let mut level = Self {
+            major,
+            minor,
+            score,
+            is_soul: major >= 6,
+        };
+
+        if let Some(max) = level.max_score() {
+            if level.score >= max {
+                level = level.next_level();
+                level.score = level.starting_score();
+            }
+        }
+
+        level
+    }
+
     pub fn name(&self) -> &'static str {
         match self.major {
             1 => "初心",
@@ -34,13 +52,38 @@ impl MajsoulLevel {
     }
 
     pub fn max_score(&self) -> Option<i64> {
-        match self.major {
-            1 => Some(200),
-            2 => Some(600),
-            3 => Some(1200),
-            4 => Some(2400),
-            5 => Some(4800),
-            _ => None,
+        const LEVEL_MAX_POINTS: [i64; 15] = [
+            20, 80, 200, 600, 800, 1000, 1200, 1400, 2000, 2800, 3200, 3600, 4000, 6000, 9000,
+        ];
+        if self.is_soul {
+            return None;
+        }
+
+        let minor = self.minor.clamp(1, 3);
+        let idx = (self.major.saturating_sub(1) * 3 + minor - 1) as usize;
+        LEVEL_MAX_POINTS.get(idx).copied()
+    }
+
+    fn starting_score(&self) -> i64 {
+        if self.major == 1 {
+            0
+        } else {
+            self.max_score().map(|max| max / 2).unwrap_or(self.score)
+        }
+    }
+
+    fn next_level(&self) -> Self {
+        let mut major = self.major;
+        let mut minor = self.minor + 1;
+        if minor > 3 {
+            major += 1;
+            minor = 1;
+        }
+        Self {
+            major,
+            minor,
+            score: self.score,
+            is_soul: major >= 6,
         }
     }
 

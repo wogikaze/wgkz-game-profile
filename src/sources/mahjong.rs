@@ -13,6 +13,8 @@ struct PlayerStats {
 struct LevelRaw {
     id: u32,
     score: i64,
+    #[serde(default)]
+    delta: i64,
 }
 
 #[derive(Deserialize)]
@@ -76,10 +78,9 @@ pub async fn fetch(cfg: &Config, players: u32) -> Result<MajsoulLevel> {
     let real_id = raw.id % 10000;
     let major = real_id / 100;
     let minor = real_id % 100;
-    Ok(MajsoulLevel {
+    Ok(MajsoulLevel::from_raw(
         major,
         minor,
-        score: raw.score,
-        is_soul: major >= 6,
-    })
+        raw.score + raw.delta,
+    ))
 }
