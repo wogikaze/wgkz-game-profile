@@ -24,7 +24,7 @@ async fn do_refresh(ctx: &Context<'_>) -> Result<String, Error> {
         "Updated: 4ma[{}] 3ma[{}] focus={} commits(y/y)={}/{} atcoder(a/h)={}/{} book={}",
         stats.majsoul_4ma.format(),
         stats.majsoul_3ma.format(),
-        stats.focus_seconds,
+        stats.focus_ms / 60_000,
         stats.commits_yesterday,
         stats.commits_year,
         stats.atcoder_algo,

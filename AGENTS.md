@@ -14,7 +14,7 @@ pushes them to the Discord user application profile via the REST API.
 - **GitHub commits** — GraphQL `contributionsCollection`.
   - `t2` = yesterday's commits, `t3` = this year's commits.
 - **TickTick focus** — `pomodoros/statistics/dist/{yyyyMMdd}/{yyyyMMdd}`.
-  - `t1` = sum of `tagDurations` (raw value, treated as seconds).
+  - `t1` = sum of `tagDurations` minutes converted to milliseconds for Discord display.
 - **AtCoder** — `history/json` (algo) and `?contestType=heuristic`.
   - `t4` = algo rating, `t5` = heuristic rating (latest `NewRating`).
 - **Book** — manual. Stored in `data/state.json`. Updated via `/widget update`.
@@ -40,4 +40,4 @@ cargo run --release
 ## Notes
 
 - `aa` field is a static placeholder (`WIDGET_AA`, default `360000`) — adjust if needed.
-- TickTick `tagDurations` unit is assumed seconds; verify against real data.
+- TickTick `tagDurations` unit is minutes; Discord duration display expects milliseconds.

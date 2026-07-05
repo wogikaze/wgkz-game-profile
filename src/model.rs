@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 pub struct Stats {
     pub majsoul_4ma: MajsoulLevel,
     pub majsoul_3ma: MajsoulLevel,
-    pub focus_seconds: i64,
+    pub focus_ms: i64,
     pub commits_yesterday: i64,
     pub commits_year: i64,
     pub atcoder_algo: i64,

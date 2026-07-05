@@ -24,7 +24,7 @@ pub fn build_payload(cfg: &Config, stats: &Stats) -> Value {
                 { "type": 1, "name": "subtitle_3", "value": "3" },
                 { "type": 3, "name": "icon_4ma", "value": { "url": icon4 } },
                 { "type": 3, "name": "icon_3ma", "value": { "url": icon3 } },
-                { "type": 2, "name": "t1", "value": stats.focus_seconds },
+                { "type": 2, "name": "t1", "value": stats.focus_ms },
                 { "type": 1, "name": "c1", "value": "Focus yesterday" },
                 { "type": 2, "name": "t2", "value": stats.commits_yesterday },
                 { "type": 1, "name": "c2", "value": "Commits yesterday" },
